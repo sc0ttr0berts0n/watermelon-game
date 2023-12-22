@@ -10,15 +10,21 @@ const {
 class PhysicsWorld extends Singleton<PhysicsWorld>() {
     private walls = [
         // left
-        Matter.Bodies.rectangle(-wallWidth / 2, size.y / 2, wallWidth, size.y, {
-            isStatic: true,
-        }),
+        Matter.Bodies.rectangle(
+            -wallWidth / 2,
+            (size.y + wallWidth) / 2,
+            wallWidth,
+            size.y + wallWidth,
+            {
+                isStatic: true,
+            }
+        ),
         // right
         Matter.Bodies.rectangle(
             size.x + wallWidth / 2,
-            size.x / 2,
+            (size.y + wallWidth) / 2,
             wallWidth,
-            size.y,
+            size.y + wallWidth,
             {
                 isStatic: true,
             }

@@ -6,10 +6,14 @@ import Objects from '../Utils/Objects';
 import gameSettings from '../game.settings';
 import { Body } from 'matter-js';
 import PhysicsWorld from './Matter/PhysicsWorld';
+import PIXIHelper from '../Utils/PIXIHelper';
+import anime from 'animejs';
 
 export class PlayArea extends Container {
     private fruits: Fruit[] = [];
     public mouseX = gameSettings.playArea.size.x >> 1;
+    private guideline = new Graphics();
+    private activeTimeline: anime.AnimeInstance | null = null;
     public get targetFruit() {
         return this.fruits.find((el) => el.state === FruitState.PRE_DROP);
     }
@@ -32,6 +36,19 @@ export class PlayArea extends Container {
             )
             .endFill();
         this.addChild(gfx);
+
+        this.guideline.lineStyle(10, 0x505050, 0.2);
+        PIXIHelper.drawVerticalDashedLine(
+            this.guideline,
+            0,
+            0,
+            gameSettings.playArea.size.y,
+            30,
+            40
+        );
+        this.addChild(this.guideline);
+        this.guideline.x = this.mouseX;
+        this.animateGuidelineSpawnIn();
 
         this.y = 200;
 
@@ -93,7 +110,6 @@ export class PlayArea extends Container {
                 this.fruits[i].dispose();
                 this.fruits.splice(i, 1);
             });
-            // console.log(removals.size);
         }
 
         // // add new fruit
@@ -103,16 +119,18 @@ export class PlayArea extends Container {
                 this.addFruit(opts);
             }, 0);
         });
-        // if (newFruit.length > 0) {
-        //     console.log(newFruit.length);
-        // }
+
+        // reposition guideline
+        this.guideline.x = this.targetFruit?.x ?? 0;
     }
 
-    addListeners() {
+    async addListeners() {
         this.addEventListener('pointerup', async () => {
             if (this.targetFruit?.locked) return;
             this.dropFruit();
             this.addFruit();
+            await this.animateGuidelineSpawnOut();
+            this.animateGuidelineSpawnIn();
         });
         this.addEventListener('pointermove', (e) => {
             this.mouseX = e.getLocalPosition(this).x;
@@ -139,5 +157,53 @@ export class PlayArea extends Container {
         const cc = aa + bb;
 
         return cc < (r * 2) ** 2;
+    }
+
+    async animateGuidelineSpawnIn(): Promise<void> {
+        if (this.activeTimeline) {
+            this.activeTimeline.pause();
+        }
+        return new Promise((resolve) => {
+            const obj = {
+                alpha: this.guideline.alpha,
+            };
+            this.activeTimeline = anime({
+                targets: obj,
+                delay: 1000,
+                duration: 2000,
+                alpha: 1,
+                update: () => {
+                    this.guideline.alpha = obj.alpha;
+                },
+                complete: () => {
+                    resolve();
+                    console.log('resolve in');
+                },
+            });
+        });
+    }
+    async animateGuidelineSpawnOut(): Promise<void> {
+        if (this.activeTimeline) {
+            this.activeTimeline.pause();
+        }
+        return new Promise((resolve) => {
+            const obj = {
+                alpha: this.guideline.alpha,
+            };
+            this.activeTimeline = anime({
+                targets: obj,
+                duration: 200,
+                scaleX: 0,
+                scaleY: 0,
+                alpha: 0,
+                update: () => {
+                    this.guideline.alpha = obj.alpha;
+                },
+                complete: () => {
+                    resolve();
+                    console.log('resolve out');
+                },
+            });
+        });
     }
 }

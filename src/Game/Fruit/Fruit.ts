@@ -11,13 +11,9 @@ import { Scoreboard } from '../Scoreboard/Scoreboard';
 
 const DEFAULTS = {
     TIERS: 11,
-    MAX_SPAWN_TIER: 6,
+    MAX_SPAWN_TIER: 5,
     MIN_SIZE: 30,
     MAX_SIZE: 250,
-    RESTITUTION: 0.2,
-    FRICTION: 0.99,
-    SLOP: 1.5,
-    WAKE_FACTOR: 1.5,
 } as const;
 
 export type FruitOptions = {
