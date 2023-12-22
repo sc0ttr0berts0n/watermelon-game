@@ -92,7 +92,7 @@ export class Fruit extends Container {
     }
 
     static getColor(tier: number) {
-        let h = (tier / DEFAULTS.TIERS) * 360;
+        let h = (tier / DEFAULTS.TIERS) * 720;
         let s = 50;
         let l = 50;
 
