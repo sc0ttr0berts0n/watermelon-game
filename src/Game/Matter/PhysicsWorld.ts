@@ -14,7 +14,7 @@ class PhysicsWorld extends Singleton<PhysicsWorld>() {
             -wallWidth / 2,
             (size.y + wallWidth) / 2,
             wallWidth,
-            size.y + wallWidth,
+            size.y * 2,
             {
                 isStatic: true,
             }
@@ -24,7 +24,7 @@ class PhysicsWorld extends Singleton<PhysicsWorld>() {
             size.x + wallWidth / 2,
             (size.y + wallWidth) / 2,
             wallWidth,
-            size.y + wallWidth,
+            size.y * 2,
             {
                 isStatic: true,
             }
