@@ -1,5 +1,5 @@
 import Matter from 'matter-js';
-import { Container, Graphics, Rectangle } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import Victor from 'victor';
 import PhysicsWorld from '../Matter/PhysicsWorld';
 import { PlayArea } from '../PlayArea';
