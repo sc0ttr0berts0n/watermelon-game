@@ -32,7 +32,7 @@ class PhysicsWorld extends Singleton<PhysicsWorld>() {
     ];
     private ground = Matter.Bodies.rectangle(
         (size.x + wallWidth) / 2,
-        600 ?? size.y + wallWidth / 2,
+        size.y + wallWidth / 2,
         size.x + wallWidth * 2,
         wallWidth,
         {
@@ -69,15 +69,12 @@ class PhysicsWorld extends Singleton<PhysicsWorld>() {
         fruit.setBody(body);
         Matter.Composite.add(this.engine.world, body);
 
-        console.log(`Add: ${this.engine.world.bodies.length}`);
-
         return body;
     }
 
     removeFruitBody(body: Matter.Body | null) {
         if (!body) return console.warn('Body was null');
         Matter.Composite.remove(this.engine.world, body);
-        console.log(`Rem: ${this.engine.world.bodies.length}`);
     }
 }
 export default PhysicsWorld.getInstance();

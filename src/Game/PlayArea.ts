@@ -189,7 +189,6 @@ export class PlayArea extends Container {
                 },
                 complete: () => {
                     resolve();
-                    console.log('resolve in');
                 },
             });
         });
@@ -213,7 +212,6 @@ export class PlayArea extends Container {
                 },
                 complete: () => {
                     resolve();
-                    console.log('resolve out');
                 },
             });
         });
