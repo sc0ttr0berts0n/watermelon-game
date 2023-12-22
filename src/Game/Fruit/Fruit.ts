@@ -7,6 +7,7 @@ import Objects from '../../Utils/Objects';
 import anime from 'animejs';
 import MathHelper from '../../Utils/MathHelper';
 import gameSettings from '../../game.settings';
+import { Scoreboard } from '../Scoreboard/Scoreboard';
 
 const DEFAULTS = {
     TIERS: 11,
@@ -166,6 +167,7 @@ export class Fruit extends Container {
     }
 
     async dispose() {
+        Objects.get<Scoreboard>('Scoreboard').add(this.tier);
         this.state = FruitState.MERGED;
         PhysicsWorld.removeFruitBody(this.body);
         await this.animateSpawnOut();

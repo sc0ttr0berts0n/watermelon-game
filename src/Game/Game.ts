@@ -3,10 +3,14 @@ import Objects from '../Utils/Objects';
 import { PlayArea } from './PlayArea';
 import Singleton from '../Utils/Singleton';
 import PhysicsWorld from './Matter/PhysicsWorld';
+import { Scoreboard } from './Scoreboard/Scoreboard';
+import pjson from '../../package.json';
 
 class Game extends Singleton<Game>() {
     public app: Application | undefined;
     private playArea: PlayArea | undefined;
+    private scoreboard: Scoreboard | undefined;
+    private version = pjson.version;
 
     constructor() {
         super();
@@ -31,6 +35,7 @@ class Game extends Singleton<Game>() {
 
     create() {
         this.playArea = this.app?.stage.addChild(new PlayArea());
+        this.scoreboard = this.app?.stage.addChild(new Scoreboard());
         Objects.get<PlayArea>('PlayArea').addFruit();
     }
 }

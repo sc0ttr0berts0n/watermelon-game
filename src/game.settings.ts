@@ -6,4 +6,7 @@ export default {
         wallWidth: 100,
         gravity: new Victor(0, 1),
     },
+    localStorageController: {
+        namespace: 'SRMelonGame',
+    },
 } as const;
