@@ -127,8 +127,10 @@ export class PlayArea extends Container {
     }
 
     async addListeners() {
-        this.addEventListener('pointerup', async () => {
+        this.addEventListener('pointerup', async (e) => {
             if (!this.targetFruit || Game.gameover) return;
+            this.mouseX = e.getLocalPosition(this).x;
+            this.update();
             this.dropFruit();
             this.addFruit();
             await this.animateGuidelineSpawnOut();

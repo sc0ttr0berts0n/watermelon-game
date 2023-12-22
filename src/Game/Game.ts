@@ -10,6 +10,7 @@ class Game extends Singleton<Game>() {
     public app: Application | undefined;
     public gameover = false;
     public playArea: PlayArea | undefined;
+    public counter = 0;
 
     constructor() {
         super();
