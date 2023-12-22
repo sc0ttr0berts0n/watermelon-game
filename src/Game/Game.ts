@@ -3,10 +3,13 @@ import Objects from '../Utils/Objects';
 import { PlayArea } from './PlayArea';
 import Singleton from '../Utils/Singleton';
 import PhysicsWorld from './Matter/PhysicsWorld';
-import { Scoreboard } from './Scoreboard/Scoreboard';
+import { Scoreboard } from './UI/Scoreboard';
+import { FailBar } from './UI/FailBar';
 
 class Game extends Singleton<Game>() {
     public app: Application | undefined;
+    public gameover = false;
+    public playArea: PlayArea | undefined;
 
     constructor() {
         super();
@@ -30,9 +33,13 @@ class Game extends Singleton<Game>() {
     }
 
     create() {
-        this.app?.stage.addChild(new PlayArea());
+        this.playArea = this.app?.stage.addChild(new PlayArea());
         this.app?.stage.addChild(new Scoreboard());
-        Objects.get<PlayArea>('PlayArea').addFruit();
+        this.app?.stage.addChild(new FailBar());
+        this.playArea?.addFruit();
+        document.addEventListener('gameover', () => {
+            this.gameover = true;
+        });
     }
 }
 

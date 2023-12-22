@@ -7,7 +7,8 @@ import Objects from '../../Utils/Objects';
 import anime from 'animejs';
 import MathHelper from '../../Utils/MathHelper';
 import gameSettings from '../../game.settings';
-import { Scoreboard } from '../Scoreboard/Scoreboard';
+import { Scoreboard } from '../UI/Scoreboard';
+import Game from '../Game';
 
 const DEFAULTS = {
     TIERS: 11,
@@ -23,9 +24,11 @@ export type FruitOptions = {
 };
 
 export enum FruitState {
+    SPAWN_LOCKED,
     PRE_DROP,
     PHYSICS,
     MERGED,
+    DISPOSED,
 }
 
 export class Fruit extends Container {
@@ -33,10 +36,11 @@ export class Fruit extends Container {
     public tier = Math.floor(Math.random() * DEFAULTS.MAX_SPAWN_TIER);
     public radius = 0;
     private color = 0;
-    public locked = true;
+    public age = 0;
+    public physicsAge = 0;
     public pos: Victor;
     public body: Matter.Body | null = null;
-    public state = FruitState.PRE_DROP;
+    public state = FruitState.SPAWN_LOCKED;
 
     constructor(pos: Victor, opts?: Partial<FruitOptions>) {
         super();
@@ -48,7 +52,6 @@ export class Fruit extends Container {
         if (opts?.addToPhysics) {
             this.body = PhysicsWorld.addFruitBody(this);
             this.state = FruitState.PHYSICS;
-            this.locked = false;
         }
         this.redraw();
         this.addChild(this.gfx);
@@ -60,11 +63,13 @@ export class Fruit extends Container {
     }
 
     update() {
+        if (this.state === FruitState.DISPOSED) return;
         if (this.body) {
             // physic object
             this.position.set(this.body.position.x, this.body.position.y);
             this.pos.x = this.position.x;
             this.pos.y = this.position.y;
+            this.physicsAge++;
         } else {
             // pre drop animated
             const pa = Objects.get<PlayArea>('PlayArea');
@@ -77,6 +82,7 @@ export class Fruit extends Container {
             );
             this.position.set(this.pos.x, this.pos.y);
         }
+        this.age++;
     }
 
     static getRadius(tier: number) {
@@ -120,24 +126,25 @@ export class Fruit extends Container {
         };
         anime({
             targets: obj,
-            delay: this.locked ? 500 : 0,
+            delay: this.state === FruitState.SPAWN_LOCKED ? 500 : 0,
             duration: 750,
             scaleX: 1,
             scaleY: 1,
             alpha: 1,
             update: () => {
-                (this.alpha = obj.alpha),
+                (this.alpha = Game.gameover ? 0 : obj.alpha),
                     this.scale.set(obj.scaleX, obj.scaleY);
             },
             complete: () => {
-                this.locked = false;
+                if (this.state === FruitState.SPAWN_LOCKED) {
+                    this.state = FruitState.PRE_DROP;
+                }
             },
         });
     }
 
     async animateSpawnOut(): Promise<void> {
         return new Promise((resolve) => {
-            // if (!this.locked) return;
             const obj = {
                 alpha: this.alpha,
                 scaleX: this.scale.x,
@@ -145,7 +152,6 @@ export class Fruit extends Container {
             };
             anime({
                 targets: obj,
-                delay: this.locked ? 500 : 0,
                 duration: 750,
                 scaleX: 0,
                 scaleY: 0,
@@ -155,7 +161,6 @@ export class Fruit extends Container {
                         this.scale.set(obj.scaleX, obj.scaleY);
                 },
                 complete: () => {
-                    this.locked = false;
                     resolve();
                 },
             });
@@ -164,8 +169,8 @@ export class Fruit extends Container {
 
     async dispose() {
         Objects.get<Scoreboard>('Scoreboard').add(this.tier);
-        this.state = FruitState.MERGED;
         PhysicsWorld.removeFruitBody(this.body);
+        this.state = FruitState.DISPOSED;
         await this.animateSpawnOut();
         this.destroy();
     }

@@ -32,7 +32,7 @@ class PhysicsWorld extends Singleton<PhysicsWorld>() {
     ];
     private ground = Matter.Bodies.rectangle(
         (size.x + wallWidth) / 2,
-        size.y + wallWidth / 2,
+        600 ?? size.y + wallWidth / 2,
         size.x + wallWidth * 2,
         wallWidth,
         {
@@ -53,6 +53,11 @@ class PhysicsWorld extends Singleton<PhysicsWorld>() {
 
         // run the engine
         Matter.Runner.run(this.runner, this.engine);
+
+        // listen
+        document.addEventListener('gameover', () => {
+            Matter.Runner.stop(this.runner);
+        });
     }
 
     addFruitBody(fruit: Fruit): Matter.Body {

@@ -1,6 +1,7 @@
 import { Container, Text } from 'pixi.js';
 import Objects from '../../Utils/Objects';
 import LocalStorageController from '../../Utils/LocalStorageController';
+import Game from '../Game';
 
 const fontStyleObject = {
     fill: 0xffffff,
@@ -32,6 +33,7 @@ export class Scoreboard extends Container {
     }
 
     add(points: number) {
+        if (Game.gameover) return;
         this.score += points;
         this.txt_scoreValue.text = this.score.toString();
         if (this.score > this.pb) {

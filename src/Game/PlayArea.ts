@@ -10,12 +10,14 @@ import PIXIHelper from '../Utils/PIXIHelper';
 import anime from 'animejs';
 
 export class PlayArea extends Container {
-    private fruits: Fruit[] = [];
+    public fruits: Fruit[] = [];
     public mouseX = gameSettings.playArea.size.x >> 1;
     private guideline = new Graphics();
     private activeTimeline: anime.AnimeInstance | null = null;
     public get targetFruit() {
-        return this.fruits.find((el) => el.state === FruitState.PRE_DROP);
+        return this.fruits.find((el) => {
+            return el.state === FruitState.PRE_DROP;
+        });
     }
 
     constructor() {
@@ -73,10 +75,8 @@ export class PlayArea extends Container {
                     other.tier !== fruit.tier ||
                     !other?.body ||
                     !fruit?.body ||
-                    other?.locked ||
-                    fruit?.locked ||
-                    other.state === FruitState.MERGED ||
-                    fruit.state === FruitState.MERGED
+                    other?.state !== FruitState.PHYSICS ||
+                    fruit?.state !== FruitState.PHYSICS
                 ) {
                     continue;
                 }
@@ -120,13 +120,15 @@ export class PlayArea extends Container {
             }, 0);
         });
 
-        // reposition guideline
-        this.guideline.x = this.targetFruit?.x ?? 0;
+        if (this.targetFruit) {
+            // reposition guideline
+            this.guideline.x = this.targetFruit?.x ?? 0;
+        }
     }
 
     async addListeners() {
         this.addEventListener('pointerup', async () => {
-            if (this.targetFruit?.locked) return;
+            if (!this.targetFruit || Game.gameover) return;
             this.dropFruit();
             this.addFruit();
             await this.animateGuidelineSpawnOut();
@@ -135,9 +137,19 @@ export class PlayArea extends Container {
         this.addEventListener('pointermove', (e) => {
             this.mouseX = e.getLocalPosition(this).x;
         });
+        document.addEventListener('gameover', () => {
+            this.eventMode = 'none';
+            this.fruits.forEach((fruit) => {
+                if (fruit.y === 0) {
+                    fruit.animateSpawnOut();
+                }
+            });
+            this.animateGuidelineSpawnOut();
+        });
     }
 
     addFruit(opts?: FruitOptions) {
+        if (Game.gameover) return;
         const pos = opts?.pos ?? new Victor(this.mouseX, 0);
         const fruit = this.addChild(new Fruit(pos, { ...opts }));
         this.fruits.push(fruit);
