@@ -5,6 +5,7 @@ import Singleton from '../Utils/Singleton';
 import PhysicsWorld from './Matter/PhysicsWorld';
 import { Scoreboard } from './UI/Scoreboard';
 import { FailBar } from './UI/FailBar';
+import GraphicController from './GraphicController';
 
 class Game extends Singleton<Game>() {
     public app: Application | undefined;
@@ -33,7 +34,8 @@ class Game extends Singleton<Game>() {
         this.create();
     }
 
-    create() {
+    async create() {
+        await GraphicController.init();
         this.playArea = this.app?.stage.addChild(new PlayArea());
         this.app?.stage.addChild(new Scoreboard());
         this.app?.stage.addChild(new FailBar());
