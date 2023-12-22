@@ -8,6 +8,7 @@ import { Body } from 'matter-js';
 import PhysicsWorld from './Matter/PhysicsWorld';
 import PIXIHelper from '../Utils/PIXIHelper';
 import anime from 'animejs';
+import { Scoreboard } from './UI/Scoreboard';
 
 export class PlayArea extends Container {
     public fruits: Fruit[] = [];
@@ -93,11 +94,19 @@ export class PlayArea extends Container {
                     other.state = FruitState.MERGED;
                     fruit.state = FruitState.MERGED;
 
-                    newFruit.push({
-                        pos: nextPos,
-                        tier: nextTier,
-                        addToPhysics: true,
-                    });
+                    if (fruit.photo?.person !== other.photo?.person) {
+                        Objects.get<Scoreboard>('Scoreboard').add(
+                            fruit.tier + 1
+                        );
+                    }
+
+                    if (other.tier < gameSettings.global.tiers) {
+                        newFruit.push({
+                            pos: nextPos,
+                            tier: nextTier,
+                            addToPhysics: true,
+                        });
+                    }
                 }
             }
             fruit.update();
@@ -150,7 +159,7 @@ export class PlayArea extends Container {
         });
     }
 
-    addFruit(opts?: FruitOptions) {
+    addFruit(opts?: Partial<FruitOptions>) {
         if (Game.gameover) return;
         const pos = opts?.pos ?? new Victor(this.mouseX, 0);
         const fruit = this.addChild(new Fruit(pos, { ...opts }));

@@ -3,7 +3,7 @@ import Objects from '../../Utils/Objects';
 import LocalStorageController from '../../Utils/LocalStorageController';
 import Game from '../Game';
 
-const fontStyleObject = {
+export const fontStyleObject = {
     fill: 0xffffff,
     fontSize: 40,
     fontFamily: 'monospace',

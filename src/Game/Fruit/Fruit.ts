@@ -9,6 +9,7 @@ import MathHelper from '../../Utils/MathHelper';
 import gameSettings from '../../game.settings';
 import { Scoreboard } from '../UI/Scoreboard';
 import Game from '../Game';
+import { Photo } from './Photo';
 
 const DEFAULTS = {
     TIERS: 11,
@@ -33,7 +34,8 @@ export enum FruitState {
 
 export class Fruit extends Container {
     private gfx = new Graphics();
-    public tier = Math.floor(Math.random() * DEFAULTS.MAX_SPAWN_TIER);
+    public tier = Game.fetchTier;
+    // public tier = Game.counter++ >> 2; // debug to get all fruit quick
     public radius = 0;
     private color = 0;
     public age = 0;
@@ -41,6 +43,7 @@ export class Fruit extends Container {
     public pos: Victor;
     public body: Matter.Body | null = null;
     public state = FruitState.SPAWN_LOCKED;
+    public photo: Photo | undefined;
 
     constructor(pos: Victor, opts?: Partial<FruitOptions>) {
         super();
@@ -53,8 +56,10 @@ export class Fruit extends Container {
             this.body = PhysicsWorld.addFruitBody(this);
             this.state = FruitState.PHYSICS;
         }
+        this.photo = new Photo(this);
         this.redraw();
         this.addChild(this.gfx);
+        this.gfx.addChild(this.photo);
         this.animateSpawnIn();
     }
 
@@ -168,7 +173,7 @@ export class Fruit extends Container {
     }
 
     async dispose() {
-        Objects.get<Scoreboard>('Scoreboard').add(this.tier);
+        Objects.get<Scoreboard>('Scoreboard').add(this.tier + 1);
         PhysicsWorld.removeFruitBody(this.body);
         this.state = FruitState.DISPOSED;
         await this.animateSpawnOut();

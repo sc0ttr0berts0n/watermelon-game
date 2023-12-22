@@ -6,12 +6,23 @@ import PhysicsWorld from './Matter/PhysicsWorld';
 import { Scoreboard } from './UI/Scoreboard';
 import { FailBar } from './UI/FailBar';
 import GraphicController from './GraphicController';
+import { ScoreStrip } from './UI/ScoreStrip';
+import gameSettings from '../game.settings';
+import { NextTier } from './UI/NextTier';
 
 class Game extends Singleton<Game>() {
     public app: Application | undefined;
     public gameover = false;
     public playArea: PlayArea | undefined;
     public counter = 0;
+    public tierCounts: Map<number, number> = new Map();
+    public nextTier = this.randomTier();
+    public get fetchTier() {
+        const prev = this.nextTier;
+        this.nextTier = this.randomTier();
+        Objects.get<NextTier>('NextTier').redraw();
+        return prev;
+    }
 
     constructor() {
         super();
@@ -38,11 +49,17 @@ class Game extends Singleton<Game>() {
         await GraphicController.init();
         this.playArea = this.app?.stage.addChild(new PlayArea());
         this.app?.stage.addChild(new Scoreboard());
+        this.app?.stage.addChild(new ScoreStrip());
+        this.app?.stage.addChild(new NextTier());
         this.app?.stage.addChild(new FailBar());
         this.playArea?.addFruit();
         document.addEventListener('gameover', () => {
             this.gameover = true;
         });
+    }
+
+    randomTier() {
+        return Math.floor(Math.random() * gameSettings.global.maxSpawnTier);
     }
 }
 

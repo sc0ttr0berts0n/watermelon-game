@@ -1,6 +1,10 @@
 import Victor from 'victor';
 
 export default {
+    global: {
+        tiers: 10,
+        maxSpawnTier: 5,
+    },
     playArea: {
         size: new Victor(800, 1000),
         wallWidth: 100,
