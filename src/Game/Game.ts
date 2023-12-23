@@ -9,6 +9,7 @@ import GraphicController from './GraphicController';
 import { ScoreStrip } from './UI/ScoreStrip';
 import gameSettings from '../game.settings';
 import { NextTier } from './UI/NextTier';
+import { Instructions } from './UI/Instructions';
 
 class Game extends Singleton<Game>() {
     public app: Application | undefined;
@@ -52,6 +53,7 @@ class Game extends Singleton<Game>() {
         this.app?.stage.addChild(new ScoreStrip());
         this.app?.stage.addChild(new NextTier());
         this.app?.stage.addChild(new FailBar());
+        this.app?.stage.addChild(new Instructions());
         this.playArea?.addFruit();
         document.addEventListener('gameover', () => {
             this.gameover = true;

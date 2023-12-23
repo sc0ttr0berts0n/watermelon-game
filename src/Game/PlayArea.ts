@@ -9,6 +9,7 @@ import PhysicsWorld from './Matter/PhysicsWorld';
 import PIXIHelper from '../Utils/PIXIHelper';
 import anime from 'animejs';
 import { Scoreboard } from './UI/Scoreboard';
+import { Instructions } from './UI/Instructions';
 
 export class PlayArea extends Container {
     public fruits: Fruit[] = [];
@@ -106,6 +107,10 @@ export class PlayArea extends Container {
                             tier: nextTier,
                             addToPhysics: true,
                         });
+                    }
+
+                    if (!Objects.get<Instructions>('Instructions').hidden) {
+                        Objects.get<Instructions>('Instructions').hide();
                     }
                 }
             }
