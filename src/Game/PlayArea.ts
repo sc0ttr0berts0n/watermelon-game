@@ -52,7 +52,8 @@ export class PlayArea extends Container {
         );
         this.addChild(this.guideline);
         this.guideline.x = this.mouseX;
-        this.animateGuidelineSpawnIn();
+        // this.animateGuidelineSpawnIn();
+        this.guideline.alpha = 0;
 
         this.y = 200;
 

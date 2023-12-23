@@ -28,7 +28,7 @@ export class FailBar extends Container {
         this.addChild(this.gfx);
         this.gfx.addChild(this.txt_gameOver);
 
-        // this.alpha = 0;
+        this.alpha = 0;
         // this.pivot.y = gameSettings.failBar.size.y;
         // this.y = gameSettings.failBar.size.y;
 
@@ -55,6 +55,9 @@ export class FailBar extends Container {
                 1,
                 this.heat + gameSettings.failBar.heatIncreaseRate
             );
+            if (this.alpha === 0) {
+                this.alpha = 1;
+            }
         } else {
             this.heat = Math.max(
                 0,
