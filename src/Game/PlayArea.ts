@@ -8,7 +8,6 @@ import { Body } from 'matter-js';
 import PhysicsWorld from './Matter/PhysicsWorld';
 import PIXIHelper from '../Utils/PIXIHelper';
 import anime from 'animejs';
-import { Scoreboard } from './UI/Scoreboard';
 import { Instructions } from './UI/Instructions';
 
 export class PlayArea extends Container {
@@ -52,7 +51,6 @@ export class PlayArea extends Container {
         );
         this.addChild(this.guideline);
         this.guideline.x = this.mouseX;
-        // this.animateGuidelineSpawnIn();
         this.guideline.alpha = 0;
 
         this.y = 200;
