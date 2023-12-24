@@ -54,7 +54,15 @@ h1 {
   height: 100%;
   display: flex;
   place-items: center;
+  justify-content: center;
 }
+
+@media screen and (min-aspect-ratio: 100/150) {
+  #app {
+    padding: 0 0.5rem;
+  }
+}
+
 
 canvas {
   width: 100vw;
@@ -63,4 +71,11 @@ canvas {
   aspect-ratio: 2/3;
   overflow: hidden;
   border-radius: 0.5rem;
+}
+
+@media screen and (min-aspect-ratio: 100/150) {
+  canvas{
+    height: 100vh;
+    width: 66.66666vh;
+  }
 }
