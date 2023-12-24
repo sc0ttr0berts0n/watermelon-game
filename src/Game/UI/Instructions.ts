@@ -7,7 +7,7 @@ import anime from 'animejs';
 export class Instructions extends Container {
     public hidden = false;
     private txt_next = new Text(
-        '💍\n\nCongrats to Ryan and Scott!\nMerge same sized circles.\nMerge Couples for Bonus Points.\n\n🎉',
+        '💍\n\nCongrats to Ryan and Scott!\nMerge same sized circles.\nGameover if you fill up the box.\n\n🎉',
         { ...fontStyleObject, align: 'center', fontSize: 40, fill: 0x000000 }
     );
     constructor() {

@@ -96,12 +96,6 @@ export class PlayArea extends Container {
                     other.state = FruitState.MERGED;
                     fruit.state = FruitState.MERGED;
 
-                    if (fruit.photo?.person !== other.photo?.person) {
-                        Objects.get<Scoreboard>('Scoreboard').add(
-                            fruit.tier + 1
-                        );
-                    }
-
                     if (other.tier < gameSettings.global.tiers) {
                         newFruit.push({
                             pos: nextPos,
