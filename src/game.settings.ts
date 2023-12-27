@@ -5,6 +5,10 @@ export default {
         tiers: 10,
         maxSpawnTier: 5,
     },
+    fruit: {
+        minSize: 30,
+        maxSize: 200,
+    },
     playArea: {
         size: new Victor(800, 1000),
         wallWidth: 100,
