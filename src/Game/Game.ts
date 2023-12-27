@@ -11,7 +11,6 @@ import gameSettings from '../game.settings';
 import { NextTier } from './UI/NextTier';
 import { Instructions } from './UI/Instructions';
 import { Replay } from './UI/Replay';
-import { Fruit } from './Fruit/Fruit';
 
 class Game extends Singleton<Game>() {
     public app: Application | undefined;
