@@ -11,13 +11,6 @@ import { Scoreboard } from '../UI/Scoreboard';
 import Game from '../Game';
 import { Photo } from './Photo';
 
-const DEFAULTS = {
-    TIERS: 11,
-    MAX_SPAWN_TIER: 5,
-    MIN_SIZE: 30,
-    MAX_SIZE: 250,
-} as const;
-
 export type FruitOptions = {
     pos: Victor;
     tier: number;
@@ -91,13 +84,16 @@ export class Fruit extends Container {
     }
 
     static getRadius(tier: number) {
-        const float = tier / (DEFAULTS.TIERS - 1);
-        const range = DEFAULTS.MAX_SIZE - DEFAULTS.MIN_SIZE;
-        return DEFAULTS.MIN_SIZE + float * range;
+        const { tiers } = gameSettings.global;
+        const { minSize, maxSize } = gameSettings.fruit;
+
+        const float = tier / (tiers - 1);
+        const range = maxSize - minSize;
+        return minSize + float * range;
     }
 
     static getColor(tier: number) {
-        let h = (tier / DEFAULTS.TIERS) * 720;
+        let h = (tier / (gameSettings.global.tiers + 1)) * 720;
         let s = 50;
         let l = 50;
 
