@@ -85,10 +85,27 @@ export class PlayArea extends Container {
                 hit = PlayArea.hitTest(other.body, fruit.body, other.radius);
                 if (hit) {
                     const nextTier = other.tier + 1;
+
+                    // code to use center of mass as next spawn pos
+                    // const nextPos = new Victor(
+                    //     (other.body.position.x + fruit.body.position.x) / 2,
+                    //     (other.body.position.y + fruit.body.position.y) / 2
+                    // );
+
+                    const low =
+                        fruit.body.position.y > other.body.position.y
+                            ? fruit
+                            : other;
+
+                    // spawn at the bottom of the lowest circle
                     const nextPos = new Victor(
-                        (other.body.position.x + fruit.body.position.x) / 2,
-                        (other.body.position.y + fruit.body.position.y) / 2
+                        low.body?.position.x ?? 0,
+                        (low.body?.position.y ?? 0) +
+                            low.radius -
+                            Fruit.getRadius(nextTier) -
+                            1
                     );
+
                     removals.add(i);
                     removals.add(j);
                     other.state = FruitState.MERGED;
