@@ -39,10 +39,12 @@ export class FailBar extends Container {
         this.txt_gameOver.alpha = 0;
         this.txt_gameOver.scale.set(0);
 
-        Game.app?.ticker.add(this.update.bind(this));
+        Game.app?.ticker.add((dt) => {
+            this.update(dt);
+        });
     }
 
-    update() {
+    update(deltaInFloat: number) {
         if (this.triggerd) return;
         const overflow = Game.playArea?.fruits.some((fruit) => {
             if (fruit.state !== FruitState.PHYSICS) return false;
@@ -53,7 +55,7 @@ export class FailBar extends Container {
         if (overflow) {
             this.heat = Math.min(
                 1,
-                this.heat + gameSettings.failBar.heatIncreaseRate
+                this.heat + gameSettings.failBar.heatIncreaseRate * deltaInFloat
             );
             if (this.alpha === 0) {
                 this.alpha = 1;
@@ -61,7 +63,7 @@ export class FailBar extends Container {
         } else {
             this.heat = Math.max(
                 0,
-                this.heat - gameSettings.failBar.heatDecreaseRate
+                this.heat - gameSettings.failBar.heatDecreaseRate * deltaInFloat
             );
         }
 
