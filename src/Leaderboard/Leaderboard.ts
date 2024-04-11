@@ -64,10 +64,9 @@ export class Leaderboard {
 
             // record final score when it occurs
             document.addEventListener('finalScore', (e: CustomEventInit) => {
-                // this._currentScore = e.detail;
+                this._currentScore = e.detail;
                 this._gameover = true;
-                this._currentScore = 11;
-                this.show(11);
+                this.show(e.detail);
             });
         } else {
             throw new Error('Leaderboard dom element not found');
