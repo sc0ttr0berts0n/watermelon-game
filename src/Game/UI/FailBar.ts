@@ -42,6 +42,9 @@ export class FailBar extends Container {
         Game.app?.ticker.add((dt) => {
             this.update(dt);
         });
+        setTimeout(() => {
+            document.dispatchEvent(new Event('gameover'));
+        }, 2000);
     }
 
     update(deltaInFloat: number) {

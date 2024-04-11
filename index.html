@@ -12,7 +12,35 @@
     <title>💍🎉</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div class="version"></div>
+      <div class="scoreboard--toggle hidden">🏆</div>
+      <div class="scoreboard--container hidden">
+        <div class="scoreboard--wrapper">
+          <div class="scoreboard--title">Leaderboard</div>
+          <div class="scoreboard--board-wrapper">
+            <div class="scoreboard--board scoreboard--board__weekly">
+              <div class="scoreboard--header">Weekly Top 10</div>
+              <div class="scoreboard--entries"></div>
+            </div>
+            <div class="scoreboard--board scoreboard--board__overall">
+              <div class="scoreboard--header">Overall Top 10</div>
+              <div class="scoreboard--entries"></div>
+            </div>
+          </div>
+          <div class="input hidden">
+            <div class="form-header">New Highscore! <span class="highscore"></span></div>
+            <form action="">
+              <input type="text" placeholder="Your Name" maxlength="10" required>
+              <button>Submit</button>
+            </form>
+          </div>
+          <div class="close">
+            <button>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

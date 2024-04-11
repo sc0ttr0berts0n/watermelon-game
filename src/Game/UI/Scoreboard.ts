@@ -30,6 +30,12 @@ export class Scoreboard extends Container {
         this.txt_highScoreValue.x = this.txt_highScoreLabel.width;
         this.x = 15;
         this.y = 15;
+
+        document.addEventListener('gameover', () => {
+            document.dispatchEvent(
+                new CustomEvent('finalScore', { detail: this.score })
+            );
+        });
     }
 
     add(points: number) {
