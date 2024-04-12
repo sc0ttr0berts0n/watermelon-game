@@ -1,7 +1,6 @@
 import anime from 'animejs';
 import { Graphics } from 'pixi.js';
 import Victor from 'victor';
-import gameSettings from '../../game.settings';
 import Objects from '../../Utils/Objects';
 import { PlayArea } from '../PlayArea';
 import MathHelper from '../../Utils/MathHelper';
@@ -20,8 +19,6 @@ export class Slider extends Graphics {
     private radius: number;
     private color: number;
     private pos: Victor;
-    private speed: number;
-    private spawnCountOnDeath: number;
 
     constructor(opts: SliderOptions) {
         super();
@@ -29,9 +26,7 @@ export class Slider extends Graphics {
         this.pos = opts.pos[0];
         this.position.set(this.pos.x, this.pos.y);
         this.radius = opts.radius[0];
-        this.speed = opts.speed;
         this.color = opts.color[0];
-        this.spawnCountOnDeath = opts?.spawnCountOnDeath ?? 0;
         this.redraw();
         this.animate();
         this.animateSpawnIn();
