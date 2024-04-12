@@ -22,11 +22,17 @@ export default async (req: Request, context: Context) => {
         });
 
         const safeVersion = version.replace(/\./g, '_');
-        const safeName = name.replace(/\s/g, '');
+        const sanitizedName = name.replace(/[^a-z0-9-_]/gi, '_');
+        const trimmedName = sanitizedName.replace(/^[_-]+|[_-]+$/g, '');
+
+        // Ensure the ID is not empty
+        if (trimmedName === '') {
+            return 'safe_id';
+        }
 
         // User exists, so we create the doc to be inserted
         const doc = {
-            _id: `highscore-${safeVersion}-${safeName}-${score}`,
+            _id: `highscore-${safeVersion}-${trimmedName}-${score}`,
             _type: 'highscore',
             name,
             score,
@@ -40,7 +46,7 @@ export default async (req: Request, context: Context) => {
             console.log('\nQUERY SUCCESSFUL:');
             console.log(query);
         } else {
-            console.error(query);
+            throw new Error(query);
         }
 
         const response = {
@@ -54,6 +60,15 @@ export default async (req: Request, context: Context) => {
         // return metadata
         return new Response(JSON.stringify(response));
     } catch (error) {
-        return new Response(JSON.stringify({ error }));
+        // Handle errors
+        console.error('Error:', error);
+        const errorMessage =
+            error instanceof Error ? error.message : 'An error occurred';
+
+        // Return error response
+        return new Response(JSON.stringify({ error: errorMessage }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+        });
     }
 };

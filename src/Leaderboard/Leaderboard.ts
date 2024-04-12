@@ -64,10 +64,12 @@ export class Leaderboard {
 
             // record final score when it occurs
             document.addEventListener('finalScore', (e: CustomEventInit) => {
-                this._currentScore = e.detail;
                 this._gameover = true;
                 // this.show(e.detail);
-                this.show(Math.floor(Math.random() * 10000));
+                // this._currentScore = e.detail;
+                const fakeScore = Math.floor(Math.random() * 10000);
+                this._currentScore = fakeScore;
+                this.show(fakeScore);
             });
         } else {
             throw new Error('Leaderboard dom element not found');
