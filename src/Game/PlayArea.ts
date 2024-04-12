@@ -9,9 +9,14 @@ import PhysicsWorld from './Matter/PhysicsWorld';
 import PIXIHelper from '../Utils/PIXIHelper';
 import anime from 'animejs';
 import { Instructions } from './UI/Instructions';
+import { Slider } from './Slider/Slider';
+import { Spark, SparkOptions } from './Sparks/Sparks';
 
 export class PlayArea extends Container {
     public fruits: Fruit[] = [];
+    public sparks: Spark[] = [];
+    public fruitLayer = new Container();
+    public sparkLayer = new Container();
     public mouseX = gameSettings.playArea.size.x >> 1;
     private guideline = new Graphics();
     private activeTimeline: anime.AnimeInstance | null = null;
@@ -40,6 +45,9 @@ export class PlayArea extends Container {
             .endFill();
         this.addChild(gfx);
 
+        this.addChild(this.fruitLayer);
+        this.addChild(this.sparkLayer);
+
         this.guideline.lineStyle(10, 0x505050, 0.2);
         PIXIHelper.drawVerticalDashedLine(
             this.guideline,
@@ -61,6 +69,9 @@ export class PlayArea extends Container {
     }
 
     update() {
+        this.sparks.forEach((spark) => spark.update());
+        this.sparks = this.sparks.filter((spark) => !spark.dead);
+
         // collsion test
         const removals: Set<number> = new Set();
         const newFruit: FruitOptions[] = [];
@@ -97,6 +108,8 @@ export class PlayArea extends Container {
                             ? fruit
                             : other;
 
+                    const high = low === fruit ? other : fruit;
+
                     // spawn at the bottom of the lowest circle
                     const nextPos = new Victor(
                         low.body?.position.x ?? 0,
@@ -117,6 +130,31 @@ export class PlayArea extends Container {
                             tier: nextTier,
                             addToPhysics: true,
                         });
+
+                        // particle effect
+                        const slider = new Slider({
+                            color: [
+                                Fruit.getColor(nextTier - 1),
+                                Fruit.getColor(nextTier),
+                            ],
+                            speed: high.body?.speed ?? 1,
+                            pos: [
+                                high.pos.clone(),
+                                new Victor(
+                                    low.body?.position.x ?? 0,
+                                    (low.body?.position.y ?? 0) +
+                                        low.radius -
+                                        Fruit.getRadius(nextTier) -
+                                        1
+                                ),
+                            ],
+                            radius: [
+                                Fruit.getRadius(nextTier - 1),
+                                Fruit.getRadius(nextTier) - 10,
+                            ],
+                        });
+
+                        this.sparkLayer.addChild(slider);
                     }
 
                     if (!Objects.get<Instructions>('Instructions').hidden) {
@@ -177,8 +215,16 @@ export class PlayArea extends Container {
     addFruit(opts?: Partial<FruitOptions>) {
         if (Game.gameover) return;
         const pos = opts?.pos ?? new Victor(this.mouseX, 0);
-        const fruit = this.addChild(new Fruit(pos, { ...opts }));
+        const fruit = this.fruitLayer.addChild(new Fruit(pos, { ...opts }));
         this.fruits.push(fruit);
+    }
+
+    addSparks(count: number, opts?: Partial<SparkOptions>) {
+        if (Game.gameover) return;
+        for (let i = 0; i < count; i++) {
+            const spark = this.sparkLayer.addChild(new Spark(opts));
+            this.sparks.push(spark);
+        }
     }
 
     dropFruit() {
