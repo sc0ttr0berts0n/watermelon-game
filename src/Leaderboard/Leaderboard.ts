@@ -63,7 +63,7 @@ export class Leaderboard {
             });
 
             // record final score when it occurs
-            document.addEventListener('finalScore', (e: CustomEventInit) => {
+            document.addEventListener('finalScore', (_e: CustomEventInit) => {
                 this._gameover = true;
                 // this.show(e.detail);
                 // this._currentScore = e.detail;
