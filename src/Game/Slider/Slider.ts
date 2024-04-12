@@ -81,7 +81,7 @@ export class Slider extends Graphics {
             };
             anime({
                 targets: obj,
-                duration: 100,
+                duration: 400,
                 posX: this.opts.pos[1].x,
                 posY: this.opts.pos[1].y,
                 percent: 1,
@@ -96,25 +96,6 @@ export class Slider extends Graphics {
                     this.redraw();
                 },
                 complete: () => {
-                    const pa = Objects.get<PlayArea>('PlayArea');
-                    pa.addSparks(20, {
-                        pos: this.opts.pos[1],
-                        // vel: dir.normalize().multiplyScalar(0.1),
-                        vel: () => {
-                            return new Victor(1, 0)
-                                .rotateBy(Math.random() * Math.PI * 2)
-                                .multiplyScalar(Math.random() * 5 + 5);
-                        },
-                        gravity: new Victor(0, 0),
-                        radius: () => {
-                            return (
-                                Math.random() * this.radius * 0.33 +
-                                this.radius * 0.05
-                            );
-                        },
-                        color: this.color,
-                        lifespan: 30,
-                    });
                     resolve();
                 },
             });

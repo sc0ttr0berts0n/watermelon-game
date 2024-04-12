@@ -45,8 +45,8 @@ export class PlayArea extends Container {
             .endFill();
         this.addChild(gfx);
 
-        this.addChild(this.fruitLayer);
         this.addChild(this.sparkLayer);
+        this.addChild(this.fruitLayer);
 
         this.guideline.lineStyle(10, 0x505050, 0.2);
         PIXIHelper.drawVerticalDashedLine(
