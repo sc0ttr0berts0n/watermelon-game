@@ -66,7 +66,8 @@ export class Leaderboard {
             document.addEventListener('finalScore', (e: CustomEventInit) => {
                 this._currentScore = e.detail;
                 this._gameover = true;
-                this.show(e.detail);
+                // this.show(e.detail);
+                this.show(Math.floor(Math.random() * 10000));
             });
         } else {
             throw new Error('Leaderboard dom element not found');
