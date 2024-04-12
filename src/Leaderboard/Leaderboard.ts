@@ -226,6 +226,7 @@ export class Leaderboard {
 
         // game version
         const version = pjson.version;
+        const fuzzyVersion = `${version.replace(/\.\d+$/, '')}*`;
 
         const client = createClient({
             projectId: '2czydvnj',
@@ -238,13 +239,13 @@ export class Leaderboard {
             const res = await client.fetch(
                 `
                 {
-                    "overall": * [_type=="highscore" && version=="${version}"] | order(score desc, _updatedAt asc)[0...10] {
+                    "overall": * [_type=="highscore" && version match "${fuzzyVersion}"] | order(score desc, _updatedAt asc)[0...10] {
                         name,
                         score,
                             version,
                         _updatedAt
                     },
-                    "weekly": * [_type=="highscore" && version=="${version}" && dateTime(_updatedAt) >= dateTime('${formattedDate}T00:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
+                    "weekly": * [_type=="highscore" && version match "${fuzzyVersion}" && dateTime(_updatedAt) >= dateTime('${formattedDate}T00:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
                         name,
                         score,
                         _updatedAt
