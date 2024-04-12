@@ -63,13 +63,14 @@ export class Leaderboard {
             });
 
             // record final score when it occurs
-            document.addEventListener('finalScore', (_e: CustomEventInit) => {
+            document.addEventListener('finalScore', (e: CustomEventInit) => {
                 this._gameover = true;
-                // this.show(e.detail);
-                // this._currentScore = e.detail;
-                const fakeScore = Math.floor(Math.random() * 10000);
-                this._currentScore = fakeScore;
-                this.show(fakeScore);
+                this.show(e.detail);
+                this._currentScore = e.detail;
+                // const fakeScore = Math.floor(Math.random() * 10000);
+                // this._currentScore = fakeScore;
+                // this.show(fakeScore);
+                this.show(e.detail);
             });
         } else {
             throw new Error('Leaderboard dom element not found');
@@ -203,18 +204,22 @@ export class Leaderboard {
         // Get the current date
         const currentDate = new Date();
 
-        // Calculate the number of days since last Monday
-        const daysSinceLastMonday = (currentDate.getDay() + 6) % 7;
+        // // Calculate the number of days since last Monday
+        // const daysSinceLastMonday = (currentDate.getDay() + 6) % 7;
 
-        // Set the date to previous Monday at midnight
-        const previousMonday = new Date(currentDate);
-        previousMonday.setDate(currentDate.getDate() - daysSinceLastMonday);
-        previousMonday.setHours(0, 0, 0, 0);
+        // // Set the date to previous Monday at midnight
+        // const previousMonday = new Date(currentDate);
+        // previousMonday.setDate(currentDate.getDate() - daysSinceLastMonday);
+        // previousMonday.setHours(0, 0, 0, 0);
+
+        // TEMP Today at midnight
+        // Set the time to midnight
+        currentDate.setHours(0, 0, 0, 0);
 
         // Get the components of the previous Monday's date
-        const year = previousMonday.getFullYear();
-        const month = String(previousMonday.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so add 1
-        const day = String(previousMonday.getDate()).padStart(2, '0');
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so add 1
+        const day = String(currentDate.getDate()).padStart(2, '0');
 
         // Construct the formatted date string
         const formattedDate = `${year}-${month}-${day}`;
