@@ -1,8 +1,6 @@
 import anime from 'animejs';
 import { Graphics } from 'pixi.js';
 import Victor from 'victor';
-import Objects from '../../Utils/Objects';
-import { PlayArea } from '../PlayArea';
 import MathHelper from '../../Utils/MathHelper';
 
 interface SliderOptions {
