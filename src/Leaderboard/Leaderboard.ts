@@ -13,8 +13,10 @@ export class Leaderboard {
     private _domElement: HTMLDivElement | null = null;
     private _scores: {
         overall: HighScoreData[];
+        daily: HighScoreData[];
         weekly: HighScoreData[];
-    } = { overall: [], weekly: [] };
+        monthly: HighScoreData[];
+    } = { overall: [], daily: [], weekly: [], monthly: [] };
     private _currentScore: undefined | number;
     private _gameover = false;
     private _fetchSucceeded = false;
@@ -149,15 +151,15 @@ export class Leaderboard {
     populateScores(data: typeof this._scores) {
         if (!data) return;
 
-        const overall = this._domElement?.querySelector(
+        const overall = this._domElement?.querySelector<HTMLDivElement>(
             '.scoreboard--board__overall .scoreboard--entries'
         );
-        const weekly = this._domElement?.querySelector(
-            '.scoreboard--board__weekly .scoreboard--entries'
+        const recent = this._domElement?.querySelector<HTMLDivElement>(
+            '.scoreboard--board__recent .scoreboard--entries'
         );
 
-        if (!overall || !weekly) {
-            return console.error('overall or weekly html element not found');
+        if (!overall || !recent) {
+            return console.error('overall or recent html element not found');
         }
 
         const _buildHTML = (
@@ -192,37 +194,81 @@ export class Leaderboard {
         while (overall.firstChild) {
             overall.removeChild(overall.firstChild);
         }
-        while (weekly.firstChild) {
-            weekly.removeChild(weekly.firstChild);
+        while (recent.firstChild) {
+            recent.removeChild(recent.firstChild);
         }
 
+        // choose a recent duration
+        const duration = [data.daily, data.weekly, data.monthly]
+            .map((el, i) => {
+                const labels = ['Daily', 'Weekly', 'Monthly'];
+                return {
+                    label: labels[i],
+                    content: el,
+                };
+            })
+            .find((data) => {
+                return data.content.length === 5;
+            }) ?? { label: 'monthly', content: data.monthly };
+
         overall.append(..._buildHTML(data?.overall));
-        weekly.append(..._buildHTML(data?.weekly));
+        recent.append(..._buildHTML(duration.content));
+
+        const recentHeader = document.querySelector<HTMLDivElement>(
+            '.scoreboard--board__recent .scoreboard--header'
+        );
+
+        if (!recentHeader) {
+            return console.error('Recent Header not found!');
+        }
+
+        recentHeader.textContent = `${duration.label} Top 10`;
     }
 
     async fetchScores() {
+        // Function to get the date at midnight
+        function getDateAtMidnight(date: Date) {
+            const midnightDate = new Date(date);
+            midnightDate.setHours(0, 0, 0, 0);
+            return midnightDate;
+        }
+
         // Get the current date
         const currentDate = new Date();
 
-        // // Calculate the number of days since last Monday
-        // const daysSinceLastMonday = (currentDate.getDay() + 6) % 7;
+        // Today at midnight
+        const todayAtMidnight = getDateAtMidnight(currentDate);
 
-        // // Set the date to previous Monday at midnight
-        // const previousMonday = new Date(currentDate);
-        // previousMonday.setDate(currentDate.getDate() - daysSinceLastMonday);
-        // previousMonday.setHours(0, 0, 0, 0);
+        // Sunday at midnight
+        const dayOfWeek = currentDate.getDay();
+        const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+        const sundayAtMidnight = getDateAtMidnight(
+            new Date(
+                currentDate.getTime() + daysUntilSunday * 24 * 60 * 60 * 1000
+            )
+        );
 
-        // TEMP Today at midnight
-        // Set the time to midnight
-        currentDate.setHours(0, 0, 0, 0);
+        // First of the month at midnight
+        const firstOfMonth = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            1
+        );
+        const firstOfMonthAtMidnight = getDateAtMidnight(firstOfMonth);
 
-        // Get the components of the previous Monday's date
-        const year = currentDate.getFullYear();
-        const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month is zero-based, so add 1
-        const day = String(currentDate.getDate()).padStart(2, '0');
+        // Format the dates
+        function formatDate(date: Date) {
+            const iso = date.toISOString(); // Formats date as "YYYY-MM-DDTHH:MM:SS.sssZ"
+            const [secondPrecision] = iso.split('.');
+            return secondPrecision + 'Z';
+        }
 
-        // Construct the formatted date string
-        const formattedDate = `${year}-${month}-${day}`;
+        // Formatted dates
+        const formattedTodayAtMidnight = formatDate(todayAtMidnight);
+        const formattedSundayAtMidnight = formatDate(sundayAtMidnight);
+        const formattedFirstOfMonthAtMidnight = formatDate(
+            firstOfMonthAtMidnight
+        );
 
         // game version
         const version = pjson.version;
@@ -245,7 +291,17 @@ export class Leaderboard {
                             version,
                         _updatedAt
                     },
-                    "weekly": * [_type=="highscore" && version match "${fuzzyVersion}" && dateTime(_updatedAt) >= dateTime('${formattedDate}T00:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
+                    "monthly": * [_type=="highscore" && version match "${fuzzyVersion}" && dateTime(_updatedAt) >= dateTime('${formattedFirstOfMonthAtMidnight}')] | order(score desc, _updatedAt asc)[0...10] {
+                        name,
+                        score,
+                        _updatedAt
+                    },
+                    "weekly": * [_type=="highscore" && version match "${fuzzyVersion}" && dateTime(_updatedAt) >= dateTime('${formattedSundayAtMidnight}')] | order(score desc, _updatedAt asc)[0...10] {
+                        name,
+                        score,
+                        _updatedAt
+                    },
+                    "daily": * [_type=="highscore" && version match "${fuzzyVersion}" && dateTime(_updatedAt) >= dateTime('${formattedTodayAtMidnight}')] | order(score desc, _updatedAt asc)[0...10] {
                         name,
                         score,
                         _updatedAt
@@ -262,17 +318,27 @@ export class Leaderboard {
 }
 
 /**
- * GROQ
- * {
-  "overall": * [_type=="highscore" && version=="1.5.0"][0...10] | order(score desc) {
-    name,
-    score,
-    _updatedAt
-  },
-  "weekly": * [_type=="highscore" && version=="1.5.0" && dateTime(_updatedAt) >= dateTime('2024-04-11T00:00:00Z')][0...10] | order(score desc) {
-    name,
-    score,
-    _updatedAt
-  }
+{
+    "overall": * [_type=="highscore" && version match "1.6.2"] | order(score desc, _updatedAt asc)[0...10] {
+        name,
+        score,
+            version,
+        _updatedAt
+    },
+    "monthly": * [_type=="highscore" && version match "1.6.2" && dateTime(_updatedAt) >= dateTime('2024-05-01T04:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
+        name,
+        score,
+        _updatedAt
+    },
+    "weekly": * [_type=="highscore" && version match "1.6.2" && dateTime(_updatedAt) >= dateTime('2024-05-05T04:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
+        name,
+        score,
+        _updatedAt
+    },
+    "daily": * [_type=="highscore" && version match "1.6.2" && dateTime(_updatedAt) >= dateTime('2024-05-05T04:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
+        name,
+        score,
+        _updatedAt
+    }
 }
  */
