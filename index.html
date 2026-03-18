@@ -18,15 +18,17 @@
       <div class="scoreboard--container hidden">
         <div class="scoreboard--wrapper">
           <div class="scoreboard--title">Leaderboard</div>
-          <div class="scoreboard--board-wrapper">
-            <div class="scoreboard--board scoreboard--board__recent">
-              <div class="scoreboard--header">Top 10</div>
-              <div class="scoreboard--entries"></div>
-            </div>
-            <div class="scoreboard--board scoreboard--board__overall">
-              <div class="scoreboard--header">Overall Top 10</div>
-              <div class="scoreboard--entries"></div>
-            </div>
+          <div class="scoreboard--tabs">
+            <button data-tab="daily">Daily</button>
+            <button data-tab="weekly">Weekly</button>
+            <button data-tab="monthly">Monthly</button>
+          </div>
+          <div class="scoreboard--board scoreboard--board__recent">
+            <div class="scoreboard--entries"></div>
+          </div>
+          <div class="scoreboard--board scoreboard--board__overall">
+            <div class="scoreboard--header">Overall Top 10</div>
+            <div class="scoreboard--entries"></div>
           </div>
           <div class="input hidden">
             <div class="form-header">New Highscore! <span class="highscore"></span></div>

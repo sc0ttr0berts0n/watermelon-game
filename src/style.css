@@ -147,11 +147,48 @@ canvas {
   max-width: 375px;
 }
 
-.scoreboard--board-wrapper {
+.scoreboard--board {
+  margin-top: 1rem;
+}
+
+.scoreboard--tabs {
   display: flex;
-  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.scoreboard--tabs button {
+  flex: 1;
+  font-family: monospace;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  background: transparent;
+  color: #888;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0;
+  cursor: pointer;
+}
+
+.scoreboard--tabs button.active {
+  color: #fff;
+  border-color: #fff;
+}
+
+.scoreboard--columns {
+  display: flex;
   gap: 1rem;
-  margin-top: 2rem;
+}
+
+.scoreboard--col {
+  flex: 1;
+}
+
+.scoreboard--empty {
+  color: #888;
+  font-style: italic;
+  padding: 1rem 0;
+  text-align: center;
 }
 
 .scoreboard--entry:nth-child(10n+1) {

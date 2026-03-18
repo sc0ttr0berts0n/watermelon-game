@@ -20,6 +20,7 @@ export class Leaderboard {
     private _currentScore: undefined | number;
     private _gameover = false;
     private _fetchSucceeded = false;
+    private _activeTab: 'daily' | 'weekly' | 'monthly' = 'weekly';
 
     constructor(domElement: HTMLDivElement, toggleElement: HTMLDivElement) {
         if (domElement) {
@@ -43,6 +44,17 @@ export class Leaderboard {
                     )!;
                 input.value = name;
             }
+            // tab click handlers
+            this._domElement
+                .querySelectorAll<HTMLButtonElement>('.scoreboard--tabs button')
+                .forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const tab = btn.dataset.tab as typeof this._activeTab;
+                        this._activeTab = tab;
+                        this.renderRecentColumn();
+                    });
+                });
+
             // close on click
             this._domElement
                 .querySelector('.close button')
@@ -119,20 +131,13 @@ export class Leaderboard {
         // hide the input
         this._domElement?.querySelector('.input form')?.classList.add('hidden');
 
-        // visually update the board
-        if (!this._scores?.weekly || !this._scores.overall) return;
-        this._scores.weekly = [
-            ...this._scores?.weekly,
-            { name, score, current: true },
-        ]
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 10);
-        this._scores.overall = [
-            ...this._scores?.overall,
-            { name, score, current: true },
-        ]
-            .sort((a, b) => b.score - a.score)
-            .slice(0, 10);
+        // visually update all time period boards
+        const entry = { name, score, current: true };
+        for (const key of ['daily', 'weekly', 'monthly', 'overall'] as const) {
+            this._scores[key] = [...this._scores[key], entry]
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 10);
+        }
 
         const body = {
             name,
@@ -148,81 +153,109 @@ export class Leaderboard {
         this.populateScores(this._scores);
     }
 
-    populateScores(data: typeof this._scores) {
-        if (!data) return;
+    private _buildHTML(
+        data: { name: string; score: number; current?: boolean }[]
+    ) {
+        if (!data || data.length === 0) return document.createElement('div');
 
-        const overall = this._domElement?.querySelector<HTMLDivElement>(
-            '.scoreboard--board__overall .scoreboard--entries'
-        );
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('scoreboard--columns');
+
+        const mid = Math.ceil(data.length / 2);
+        const leftCol = document.createElement('div');
+        const rightCol = document.createElement('div');
+        leftCol.classList.add('scoreboard--col');
+        rightCol.classList.add('scoreboard--col');
+
+        data.forEach((el, index) => {
+            const entry = document.createElement('div');
+            const label = document.createElement('div');
+            const value = document.createElement('div');
+
+            entry.classList.add('scoreboard--entry');
+            label.classList.add('scoreboard--label');
+            value.classList.add('scoreboard--value');
+
+            if (el.current) {
+                entry.classList.add('current');
+            }
+
+            label.textContent = `${index + 1}:${index < 9 ? ' ' : ''}${
+                el.name
+            }`;
+            value.textContent = el.score.toString();
+            entry.replaceChildren(label, value);
+
+            if (index < mid) {
+                leftCol.append(entry);
+            } else {
+                rightCol.append(entry);
+            }
+        });
+
+        wrapper.append(leftCol, rightCol);
+        return wrapper;
+    }
+
+    renderRecentColumn() {
         const recent = this._domElement?.querySelector<HTMLDivElement>(
             '.scoreboard--board__recent .scoreboard--entries'
         );
+        if (!recent) return;
 
-        if (!overall || !recent) {
-            return console.error('overall or recent html element not found');
-        }
-
-        const _buildHTML = (
-            data: { name: string; score: number; current?: boolean }[]
-        ) => {
-            // default empty state guard
-            if (!data) return [''];
-
-            return data.map((el, index) => {
-                const entry = document.createElement('div');
-                const label = document.createElement('div');
-                const value = document.createElement('div');
-
-                entry.classList.add('scoreboard--entry');
-                label.classList.add('scoreboard--label');
-                value.classList.add('scoreboard--value');
-
-                if (el.current) {
-                    entry.classList.add('current');
-                }
-
-                label.textContent = `${index + 1}:${index < 9 ? ' ' : ''}${
-                    el.name
-                }`;
-                value.textContent = el.score.toString();
-                entry.replaceChildren(label, value);
-
-                return entry;
-            });
-        };
-
-        while (overall.firstChild) {
-            overall.removeChild(overall.firstChild);
-        }
         while (recent.firstChild) {
             recent.removeChild(recent.firstChild);
         }
 
-        // choose a recent duration
-        const duration = [data.daily, data.weekly, data.monthly]
-            .map((el, i) => {
-                const labels = ['Daily', 'Weekly', 'Monthly'];
-                return {
-                    label: labels[i],
-                    content: el,
-                };
-            })
-            .find((data) => {
-                return data.content.length === 5;
-            }) ?? { label: 'monthly', content: data.monthly };
-
-        overall.append(..._buildHTML(data?.overall));
-        recent.append(..._buildHTML(duration.content));
-
-        const recentHeader = document.querySelector<HTMLDivElement>(
-            '.scoreboard--board__recent .scoreboard--header'
-        );
-
-        if (!recentHeader) {
-            return console.error('Recent Header not found!');
+        const scores = this._scores[this._activeTab];
+        if (scores.length === 0) {
+            const empty = document.createElement('div');
+            empty.classList.add('scoreboard--empty');
+            empty.textContent = 'No scores yet';
+            recent.append(empty);
+        } else {
+            recent.append(this._buildHTML(scores));
         }
 
-        recentHeader.textContent = `${duration.label} Top 10`;
+        // update active tab styling
+        this._domElement
+            ?.querySelectorAll<HTMLButtonElement>('.scoreboard--tabs button')
+            .forEach((btn) => {
+                btn.classList.toggle(
+                    'active',
+                    btn.dataset.tab === this._activeTab
+                );
+            });
+    }
+
+    populateScores(data: typeof this._scores) {
+        if (!data) return;
+
+        // choose the smallest timespan with enough scores as default tab
+        const full = 5;
+        const defaultTab = (
+            [
+                { key: 'daily' as const, content: data.daily },
+                { key: 'weekly' as const, content: data.weekly },
+                { key: 'monthly' as const, content: data.monthly },
+            ].find((d) => d.content.length >= full)
+        )?.key ?? 'monthly';
+
+        this._activeTab = defaultTab;
+
+        // render overall (right column)
+        const overall = this._domElement?.querySelector<HTMLDivElement>(
+            '.scoreboard--board__overall .scoreboard--entries'
+        );
+        if (!overall) return;
+
+        while (overall.firstChild) {
+            overall.removeChild(overall.firstChild);
+        }
+        overall.append(this._buildHTML(data.overall));
+
+        // render recent (left column)
+        this.renderRecentColumn();
     }
 
     async fetchScores() {
