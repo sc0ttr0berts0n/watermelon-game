@@ -20,6 +20,7 @@ export class Leaderboard {
     private _currentScore: undefined | number;
     private _gameover = false;
     private _fetchSucceeded = false;
+    private _scoreSubmitted = false;
     private _activeTab: 'daily' | 'weekly' | 'monthly' = 'weekly';
 
     constructor(domElement: HTMLDivElement, toggleElement: HTMLDivElement) {
@@ -55,10 +56,13 @@ export class Leaderboard {
                     });
                 });
 
-            // close on click
+            // close on click — auto-submit as 'private' if high score not yet submitted
             this._domElement
                 .querySelector('.close button')
                 ?.addEventListener('click', () => {
+                    if (this._currentScore !== undefined && !this._scoreSubmitted) {
+                        this.submitScore(this._currentScore);
+                    }
                     this._domElement?.classList.add('hidden');
                 });
 
@@ -79,11 +83,7 @@ export class Leaderboard {
             // record final score when it occurs
             document.addEventListener('finalScore', (e: CustomEventInit) => {
                 this._gameover = true;
-                this.show(e.detail);
                 this._currentScore = e.detail;
-                // const fakeScore = Math.floor(Math.random() * 10000);
-                // this._currentScore = fakeScore;
-                // this.show(fakeScore);
                 this.show(e.detail);
             });
         } else {
@@ -108,7 +108,7 @@ export class Leaderboard {
             return current > el.score;
         });
 
-        if (true || weeklyHigh || overallHigh) {
+        if (weeklyHigh || overallHigh) {
             const input = this._domElement?.querySelector('.input')!;
             const highscore = input?.querySelector('.highscore')!;
             highscore.textContent = current.toString();
@@ -124,7 +124,10 @@ export class Leaderboard {
             return console.error('name needed to submit score');
         }
 
-        const name = input.value;
+        if (this._scoreSubmitted) return;
+        this._scoreSubmitted = true;
+
+        const name = input.value.trim() || 'private';
 
         LocalStorageController.set('leaderboard-name', name);
 
@@ -272,12 +275,11 @@ export class Leaderboard {
         // Today at midnight
         const todayAtMidnight = getDateAtMidnight(currentDate);
 
-        // Sunday at midnight
+        // Most recent Sunday at midnight (start of current week)
         const dayOfWeek = currentDate.getDay();
-        const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
         const sundayAtMidnight = getDateAtMidnight(
             new Date(
-                currentDate.getTime() + daysUntilSunday * 24 * 60 * 60 * 1000
+                currentDate.getTime() - dayOfWeek * 24 * 60 * 60 * 1000
             )
         );
 
@@ -349,29 +351,3 @@ export class Leaderboard {
         }
     }
 }
-
-/**
-{
-    "overall": * [_type=="highscore" && version match "1.6.2"] | order(score desc, _updatedAt asc)[0...10] {
-        name,
-        score,
-            version,
-        _updatedAt
-    },
-    "monthly": * [_type=="highscore" && version match "1.6.2" && dateTime(_updatedAt) >= dateTime('2024-05-01T04:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
-        name,
-        score,
-        _updatedAt
-    },
-    "weekly": * [_type=="highscore" && version match "1.6.2" && dateTime(_updatedAt) >= dateTime('2024-05-05T04:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
-        name,
-        score,
-        _updatedAt
-    },
-    "daily": * [_type=="highscore" && version match "1.6.2" && dateTime(_updatedAt) >= dateTime('2024-05-05T04:00:00Z')] | order(score desc, _updatedAt asc)[0...10] {
-        name,
-        score,
-        _updatedAt
-    }
-}
- */
