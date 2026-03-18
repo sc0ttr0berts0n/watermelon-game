@@ -40,7 +40,7 @@ export class PlayArea extends Container {
                 0,
                 0,
                 gameSettings.playArea.size.x,
-                gameSettings.playArea.size.y
+                gameSettings.playArea.size.y,
             )
             .endFill();
         this.addChild(gfx);
@@ -55,7 +55,7 @@ export class PlayArea extends Container {
             0,
             gameSettings.playArea.size.y,
             30,
-            40
+            40,
         );
         this.addChild(this.guideline);
         this.guideline.x = this.mouseX;
@@ -116,7 +116,7 @@ export class PlayArea extends Container {
                         (low.body?.position.y ?? 0) +
                             low.radius -
                             Fruit.getRadius(nextTier) -
-                            1
+                            1,
                     );
 
                     removals.add(i);
@@ -145,7 +145,7 @@ export class PlayArea extends Container {
                                     (low.body?.position.y ?? 0) +
                                         low.radius -
                                         Fruit.getRadius(nextTier) -
-                                        1
+                                        1,
                                 ),
                             ],
                             radius: [
@@ -177,7 +177,6 @@ export class PlayArea extends Container {
         // // add new fruit
         newFruit.forEach((opts) => {
             setTimeout(() => {
-                newFruit;
                 this.addFruit(opts);
             }, 0);
         });
