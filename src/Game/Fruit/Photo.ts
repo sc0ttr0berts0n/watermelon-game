@@ -60,13 +60,12 @@ export class Photo extends Container {
             this.person === Person.SCOTT ? 's' : 'r'
         }`;
         const texture = GraphicController.textures.get(string);
-        if (!texture) debugger;
         return texture ?? Texture.WHITE;
     }
     getMerge(fruit: Fruit) {
         const { tier } = fruit;
         const texture = GraphicController.textures.get(
-            `fruit_${tier + 1}_merge`
+            `fruit_${tier + 1}_merge`,
         );
         return texture ?? Texture.WHITE;
     }
